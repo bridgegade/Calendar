@@ -5,7 +5,7 @@ package calendar;
  * Main class, begins the Calendar console simulation
  * based on console input
  */
-public class MyCalendarTester
+public class SimpleCalendar
 {
 
 	/**
@@ -14,8 +14,11 @@ public class MyCalendarTester
 	public static void main(String[] args)
 	{
 		
-		MyCalendar test = new MyCalendar();
-		test.userInput();
+		MyCalendar c = new MyCalendar();
+		Controller con = new Controller();
+		Viewer v = new Viewer(c,con);
+		c.attach(v);
+		
 			
 		
 	}
