@@ -419,7 +419,7 @@ public class MyCalendar
 
 		Calendar startTime = Calendar.getInstance();
 		Calendar endTime = Calendar.getInstance();
-
+		T = T.replaceAll("[^\\d.]", "");
 		T = T.replaceAll("[\\W]", "");
 		T = T.trim();
 		if (T.length() <= 4)

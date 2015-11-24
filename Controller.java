@@ -9,7 +9,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Calendar;
 import java.util.SortedMap;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -39,13 +38,14 @@ public class Controller
 	JButton save;
 	JButton quit;
 	JLabel day;
+	
 	/**
 	 * Constructor that creates buttons for a viewer to add and defines their ActionListeners.
 	 * Also pops up a frame when create is clicked with its own set of buttons.
 	 * @param c
 	 */
 	public Controller(MyCalendar c)
-	{
+	{	
 		myCalendar = c;
 		nextPrevious = new JPanel();
 		next = new JButton(">");
@@ -120,19 +120,42 @@ public class Controller
 
 			@Override
 			public void actionPerformed(ActionEvent arg0)
-			{
-				if (startingTime.getText().length() < 5)
+			{	String startStore = startingTime.getText();
+				String endStore = endingTime.getText();
+				if (startingTime.getText().length() < 7)
 				{
 					startingTime.setText("0" + startingTime.getText());
 				}
-				if (endingTime.getText().length() < 5)
+				if (endingTime.getText().length() < 7)
 				{
 					endingTime.setText("0" + endingTime.getText());
+					
+				}
+				if(startingTime.getText().substring(5, 7).equals("pm")){
+					
+					startingTime.setText(startingTime.getText().substring(0, 5));
+					startingTime.setText(startingTime.getText().replaceAll("[\\W]", ""));
+					int store = Integer.parseInt(startingTime.getText());
+					store += 1200;
+					System.out.println(store);
+					startingTime.setText(Integer.toString(store));
+					
+				}
+				
+				if(endingTime.getText().substring(5, 7).equals("pm")){
+					
+					endingTime.setText(endingTime.getText().substring(0, 5));
+					endingTime.setText(endingTime.getText().replaceAll("[\\W]", ""));
+					int store = Integer.parseInt(endingTime.getText());
+					store += 1200;
+					System.out.println(store);
+					endingTime.setText(Integer.toString(store));
 				}
 				if (!(myCalendar.createEvent(title.getText(), date.getText(), startingTime.getText() + endingTime.getText())))
-				{
+				{	endingTime.setText(endStore);
+					startingTime.setText(startStore);
 					status.setText("There is a time conflict, please enter different times.");
-
+					
 				} else
 				{	startingTime.setText("");
 					endingTime.setText("");
@@ -159,6 +182,7 @@ public class Controller
 		
 		daySelected = new JTextArea();
 		daySelected.setRows(24);
+		
 		day = new JLabel();
 			
 		createQuit.add(create);
@@ -248,16 +272,16 @@ public class Controller
 						"	"
 								+ subMapStore.get(k).title
 								+ " "
-								+ subMapStore.get(k).startTime.get(Calendar.HOUR_OF_DAY)
+								+ ((subMapStore.get(k).startTime.get(Calendar.HOUR_OF_DAY)>12)? subMapStore.get(k).startTime.get(Calendar.HOUR_OF_DAY)-12:subMapStore.get(k).startTime.get(Calendar.HOUR_OF_DAY))
 								+ ":"
 								+ ((subMapStore.get(k).startTime.get(Calendar.MINUTE) < 10) ? "0" + subMapStore.get(k).startTime.get(Calendar.MINUTE)
-										: subMapStore.get(k).startTime.get(Calendar.MINUTE))
+										: subMapStore.get(k).startTime.get(Calendar.MINUTE))+((subMapStore.get(k).startTime.get(Calendar.HOUR_OF_DAY)>12)?"pm":"am")
 								+ " "
 								+ ((subMapStore.get(k).endTime == null) ? "" : "- "
-										+ subMapStore.get(k).endTime.get(Calendar.HOUR_OF_DAY)
+										+ ((subMapStore.get(k).endTime.get(Calendar.HOUR_OF_DAY)>12)? subMapStore.get(k).endTime.get(Calendar.HOUR_OF_DAY)-12:subMapStore.get(k).endTime.get(Calendar.HOUR_OF_DAY))
 										+ ":"
 										+ ((subMapStore.get(k).endTime.get(Calendar.MINUTE) < 10) ? "0"
-												+ subMapStore.get(k).endTime.get(Calendar.MINUTE) : subMapStore.get(k).endTime.get(Calendar.MINUTE)))
+												+ subMapStore.get(k).endTime.get(Calendar.MINUTE) : subMapStore.get(k).endTime.get(Calendar.MINUTE)))+((subMapStore.get(k).endTime.get(Calendar.HOUR_OF_DAY)>12)?"pm":"am")
 								+ "\n", daySelected.getLineStartOffset(subMapStore.get(k).startTime.get(Calendar.HOUR_OF_DAY)));
 
 			}

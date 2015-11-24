@@ -1,30 +1,21 @@
 package calendar;
 
 import java.awt.BorderLayout;
+
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.SortedMap;
-
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.text.BadLocationException;
+
 /**
  * Viewer portion of MVS model, is a JFrame and ChangeListener.
  * @author anthony
@@ -149,12 +140,12 @@ public class Viewer extends JFrame implements ChangeListener
 	 * @param panel
 	 */
 	public void initializewDayView(Calendar c, JPanel panel)
-	{
+	{	panel.setPreferredSize(new Dimension(400,300));
 		panel.add(con.day, BorderLayout.NORTH);
-		con.daySelected.setPreferredSize(new Dimension(300, 100));
+		
 		JScrollPane scroll = new JScrollPane(con.daySelected);
-
-		panel.add(scroll);
+		scroll.setPreferredSize(new Dimension(400,300));
+		panel.add(scroll,BorderLayout.EAST);
 
 	}
 	
