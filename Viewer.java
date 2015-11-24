@@ -25,24 +25,25 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
-
+/**
+ * Viewer portion of MVS model, is a JFrame and ChangeListener.
+ * @author anthony
+ *
+ */
 public class Viewer extends JFrame implements ChangeListener
 {
 	private MyCalendar myCalendar;
 	private JPanel dayView;
-	private JTextArea daySelected;
-	private JLabel day;
 	private JPanel monthView;
-	private JFrame createEvent;
-	JTextField title;
-	JTextField date;
-	JTextField startingTime;
-	JTextField endingTime;
-	JLabel status;
-	String time;
-
-	public Viewer(MyCalendar c, Controller con)
-	{
+	private Controller con;
+	/**
+	 * Constructor, initializes the controller object and MyCalendar object. Also adds buttons from 
+	 * the controller and displays the month view and day view.
+	 * @param c
+	 * @param controller
+	 */
+	public Viewer(MyCalendar c, Controller controller)
+	{	con = controller;
 		myCalendar = c;
 		setLocation(100, 200);
 		setLayout(new BorderLayout());
@@ -53,140 +54,32 @@ public class Viewer extends JFrame implements ChangeListener
 
 		dayView = new JPanel();
 		dayView.setLayout(new BorderLayout());
-		daySelected = new JTextArea();
-		daySelected.setRows(24);
-		day = new JLabel();
+		
+		
 
 		initializewDayView(myCalendar.cal, dayView);
 
-		JPanel nextPrevious = new JPanel();
-		JButton next = new JButton(">");
-		next.addActionListener(new ActionListener()
-		{
 
-			@Override
-			public void actionPerformed(ActionEvent a)
-			{
-
-				myCalendar.userInput("V", "M", "N", "", "");
-
-				myCalendar.update();
-
-			}
-
-		});
-		JButton previous = new JButton("<");
-		previous.addActionListener(new ActionListener()
-		{
-
-			@Override
-			public void actionPerformed(ActionEvent a)
-			{
-
-				myCalendar.userInput("V", "M", "P", "", "");
-
-				myCalendar.update();
-
-			}
-
-		});
-		createEvent = new JFrame();
-		createEvent.setLayout(new FlowLayout());
-		createEvent.setSize(400, 200);
 		
-		title = new JTextField("Untitled Event");
-		date = new JTextField((((myCalendar.cal.get(Calendar.MONTH) + 1) < 10) ? "0" + (myCalendar.cal.get(Calendar.MONTH) + 1)
-				: (myCalendar.cal.get(Calendar.MONTH) + 1))
-				+ "/"
-				+ ((myCalendar.cal.get(Calendar.DAY_OF_MONTH) < 10) ? "0" + (myCalendar.cal.get(Calendar.DAY_OF_MONTH))
-						: (myCalendar.cal.get(Calendar.DAY_OF_MONTH))) + "/" + myCalendar.cal.get(Calendar.YEAR));
-		startingTime = new JTextField("Starting Time");
-		endingTime = new JTextField("Ending Time");
-	
-		status = new JLabel("");
-		JPanel createQuit = new JPanel();
-		JButton create = new JButton("Create");
+
 		
-		create.addActionListener(new ActionListener()
-		{
-
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				date.setText((((myCalendar.cal.get(Calendar.MONTH) + 1) < 10) ? "0" + (myCalendar.cal.get(Calendar.MONTH) + 1) : (myCalendar.cal
-						.get(Calendar.MONTH) + 1))
-						+ "/"
-						+ ((myCalendar.cal.get(Calendar.DAY_OF_MONTH) < 10) ? "0" + (myCalendar.cal.get(Calendar.DAY_OF_MONTH)) : (myCalendar.cal
-								.get(Calendar.DAY_OF_MONTH))) + "/" + myCalendar.cal.get(Calendar.YEAR));
-
-				createEvent.setVisible(true);
-			}
-
-		});
-		JButton save = new JButton("Save");
-		save.addActionListener(new ActionListener()
-		{
-
-			@Override
-			public void actionPerformed(ActionEvent arg0)
-			{
-				if (startingTime.getText().length() < 5)
-				{
-					startingTime.setText("0" + startingTime.getText());
-				}
-				if (endingTime.getText().length() < 5)
-				{
-					endingTime.setText("0" + endingTime.getText());
-				}
-				if (!(myCalendar.createEvent(title.getText(), date.getText(), startingTime.getText() + endingTime.getText())))
-				{
-					status.setText("There is a time conflict, please enter different times.");
-
-				} else
-				{
-					myCalendar.update();
-					
-					createEvent.dispose();
-				}
-			}
-
-		});
 		
-		createEvent.add(title);
-		createEvent.add(date);
-		createEvent.add(startingTime);
-		createEvent.add(endingTime);
-		createEvent.add(save);
-		createEvent.add(status);
-		createEvent.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-		JButton quit = new JButton("Quit & Save");
-		quit.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				myCalendar.userInput("Q", "", "", "", "");
-				dispose();
-			}
-			
-		});
+		add(con.nextPrevious, BorderLayout.NORTH);
 		
-		nextPrevious.add(previous);
-		nextPrevious.add(next);
-		add(nextPrevious, BorderLayout.NORTH);
-		createQuit.add(create);
-		createQuit.add(quit);
-		add(createQuit, BorderLayout.SOUTH);
+		add(con.createQuit, BorderLayout.SOUTH);
 		add(monthView, BorderLayout.WEST);
 		add(dayView, BorderLayout.EAST);
-		
+		pack();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(1500, 600);
 		setVisible(true);
 	}
-
-	public void drawMonth(Calendar c, JPanel panel)
+	/**
+	 * Draws the month with each day being a clickable JLabel.
+	 * @param c
+	 * @param panel
+	 */
+	public void drawMonth(GregorianCalendar c, JPanel panel)
 	{
 		GridLayout grid = new GridLayout(0, 7);
 
@@ -230,12 +123,18 @@ public class Viewer extends JFrame implements ChangeListener
 				day.setBackground(Color.LIGHT_GRAY);
 				day.setOpaque(true);
 			}
+			if ((myCalendar.cal.get(Calendar.DAY_OF_MONTH) == (x + 1)) && (myCalendar.cal.get(Calendar.YEAR) == c.get(Calendar.YEAR))
+					&& (myCalendar.cal.get(Calendar.MONTH) == myCalendar.cal.get(Calendar.MONTH)))
+			{
+				day.setBackground(Color.cyan);
+				day.setOpaque(true);
+			}
 			if (!(subMapStore.isEmpty()))
 			{
 				day.setBackground(Color.pink);
 				day.setOpaque(true);
 			}
-			day.addMouseListener(listener(x + 1));
+			day.addMouseListener(con.listener(x + 1));
 			panel.add(day);
 		}
 
@@ -243,108 +142,28 @@ public class Viewer extends JFrame implements ChangeListener
 
 	}
 
-	public MouseListener listener(final int x)
-	{
-		return new MouseAdapter()
-		{
-			public void mousePressed(MouseEvent event)
-			{
-				daySelected.setText("");
-				for (int x = 1; x < 13; x++)
-				{
-					daySelected.append(x + " AM\n");
-				}
-				for (int x = 1; x < 13; x++)
-				{
-					daySelected.append(x + " PM\n");
-				}
-				myCalendar.cal.set(Calendar.DATE, x);
-
-				String toReturn = "";
-				toReturn += myCalendar.arrayOfDays[myCalendar.cal.get(Calendar.DAY_OF_WEEK) - 1];
-				toReturn += " ";
-				toReturn += myCalendar.arrayOfMonths[myCalendar.cal.get(Calendar.MONTH)];
-				toReturn += " ";
-				toReturn += myCalendar.cal.get(Calendar.DAY_OF_MONTH);
-				toReturn += ", ";
-				toReturn += myCalendar.cal.get(Calendar.YEAR);
-				toReturn += "\n";
-				day.setText("  " + toReturn);
-				System.out.println(daySelected.getLineCount());
-				try
-				{
-					for(Long i:myCalendar.events.keySet()){
-						System.out.println(i);
-					}
-					// use treemap's submap to find events in same day
-					SortedMap<Long, Event> subMapStore = myCalendar.events.subMap(Long.parseLong(
-							myCalendar.cal.get(Calendar.YEAR)
-									+ ""
-									+ (((myCalendar.cal.get(Calendar.MONTH) + 1) < 10) ? "0" + (myCalendar.cal.get(Calendar.MONTH) + 1) : (myCalendar.cal
-											.get(Calendar.MONTH) + 1))
-									+ ""
-									+ (((myCalendar.cal.get(Calendar.DAY_OF_MONTH)) < 10) ? "0" + myCalendar.cal.get(Calendar.DAY_OF_MONTH) : (myCalendar.cal
-											.get(Calendar.DAY_OF_MONTH))) + ""+"00000000"),
-							Long.parseLong(myCalendar.cal.get(Calendar.YEAR)
-									+ ""
-									+ (((myCalendar.cal.get(Calendar.MONTH) + 1) < 10) ? "0" + (myCalendar.cal.get(Calendar.MONTH) + 1) : (myCalendar.cal
-											.get(Calendar.MONTH) + 1))
-									+ ""
-									+ (((myCalendar.cal.get(Calendar.DAY_OF_MONTH) + 1) < 10) ? "0" + (myCalendar.cal.get(Calendar.DAY_OF_MONTH) + 1)
-											: (myCalendar.cal.get(Calendar.DAY_OF_MONTH) + 1)) +"00000000"));
-
-					// print events in the day
-					for(Long i:subMapStore.keySet()){
-						System.out.println(i);
-					}
-					Long[] keys = new Long[subMapStore.size()];
-					subMapStore.keySet().toArray(keys);
-					for (int x = keys.length - 1; x >= 0; x--)
-					{
-						Long k = keys[x];
-						daySelected.insert(
-								"	"
-										+ subMapStore.get(k).title
-										+ " "
-										+ subMapStore.get(k).startTime.get(Calendar.HOUR_OF_DAY)
-										+ ":"
-										+ ((subMapStore.get(k).startTime.get(Calendar.MINUTE) < 10) ? "0" + subMapStore.get(k).startTime.get(Calendar.MINUTE)
-												: subMapStore.get(k).startTime.get(Calendar.MINUTE))
-										+ " "
-										+ ((subMapStore.get(k).endTime == null) ? "" : "- "
-												+ subMapStore.get(k).endTime.get(Calendar.HOUR_OF_DAY)
-												+ ":"
-												+ ((subMapStore.get(k).endTime.get(Calendar.MINUTE) < 10) ? "0"
-														+ subMapStore.get(k).endTime.get(Calendar.MINUTE) : subMapStore.get(k).endTime.get(Calendar.MINUTE)))
-										+ "\n", daySelected.getLineStartOffset(subMapStore.get(k).startTime.get(Calendar.HOUR_OF_DAY)));
-
-					}
-
-				} catch (BadLocationException e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-				myCalendar.update();
-			}
-		};
-	}
-
+	
+	/**
+	 * Adds the day to a day view panel and decorates it with a JScrollPane.
+	 * @param c
+	 * @param panel
+	 */
 	public void initializewDayView(Calendar c, JPanel panel)
 	{
-		panel.add(day, BorderLayout.NORTH);
-		daySelected.setPreferredSize(new Dimension(300, 100));
-		JScrollPane scroll = new JScrollPane(daySelected);
+		panel.add(con.day, BorderLayout.NORTH);
+		con.daySelected.setPreferredSize(new Dimension(300, 100));
+		JScrollPane scroll = new JScrollPane(con.daySelected);
 
 		panel.add(scroll);
 
 	}
-
+	
 	@Override
 	public void stateChanged(ChangeEvent e)
 	{
-		// TODO Auto-generated method stub
+		if(myCalendar.end==true){
+			dispose();
+		}
 		monthView.removeAll();
 		repaint();
 		monthView.revalidate();

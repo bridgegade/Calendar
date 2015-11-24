@@ -16,8 +16,9 @@ import javax.swing.event.ChangeListener;
 
 /**
  * Handles methods for loading events to a file, viewing the calendar, creating
- * events, going to a specific date, viewing all stored events, deleteing
- * events, quiting while saving currently added events to Events.txt.
+ * events, going to a specific date, viewing all stored events, deleting
+ * events, quitting while saving currently added events to Events.txt, modified
+ * to fit MVC model for gui program.
  * 
  * @author Anthony Vo
  * 
@@ -40,12 +41,16 @@ public class MyCalendar
 	GregorianCalendar cal;
 	boolean initalScreen;
 	ArrayList<ChangeListener> listeners;
-
+	boolean end;
+	/**
+	 * constructor, loads events.txt from start.
+	 */
 	public MyCalendar()
 	{
 		events = new TreeMap<Long, Event>();
 		cal = new GregorianCalendar();
 		initalScreen = true;
+		end = false;
 		listeners = new ArrayList<ChangeListener>();
 		userInput("L", "", "", "", "");
 	}
@@ -67,7 +72,12 @@ public class MyCalendar
 	
 
 	/**
-	 * begins the console simulation
+	 * performs actions based on sequence of inputs
+	 * @param fui, first user input
+	 * @param uiv, second user input for view
+	 * @param uiv2, third user input for view
+	 * @param inD, second user input for delete
+	 * @param dD, second user input for going to specific date
 	 */
 	public void userInput(String fui, String uiv, String uiv2, String inD, String dD)
 	{
@@ -99,8 +109,7 @@ public class MyCalendar
 				} catch (FileNotFoundException e)
 				{
 					System.out.println("This is the first run.");
-					firstUserInput = "C";
-					createEvent(in, firstUserInput);
+					
 				}
 			} else if (firstUserInput.equals("C"))
 			{
@@ -258,13 +267,17 @@ public class MyCalendar
 				e.printStackTrace();
 			}
 			System.out.println("Goodbye.");
-
+			end = true;
 			System.out.println("Select one of the following options: " + "[L]oad   [V]iew by  [C]reate, [G]o to [E]vent list [D]elete  [Q]uit");
 
 		}
 		in.close();
 	}
-
+	/**
+	 * Prints events for the day based on current Gregorian calendar.
+	 * @param c
+	 * @return
+	 */
 	public String printEventsForDay(Calendar c)
 	{
 		String toReturn = "";
@@ -311,8 +324,11 @@ public class MyCalendar
 		}
 		return toReturn;
 	}
-
-	public void printMonth(Calendar c)
+	/**
+	 * prints the month based on calendar
+	 * @param c, a GregorianCalendar
+	 */
+	public void printMonth(GregorianCalendar c)
 	{
 		GregorianCalendar temp = new GregorianCalendar(c.get(Calendar.YEAR), c.get(Calendar.MONTH), 1);
 		System.out.println("      " + arrayOfMonths[c.get(Calendar.MONTH)] + " " + c.get(Calendar.YEAR));
@@ -387,7 +403,7 @@ public class MyCalendar
 
 	}
 	/**
-	 * Creates an event and stores it in the events array.
+	 * Creates an event and stores it in the events array based on paremeters.
 	 * @param title
 	 * @param date
 	 * @param T
@@ -417,31 +433,47 @@ public class MyCalendar
 			startTime.set(y, m - 1, d, Integer.parseInt(T.substring(0, 2)), Integer.parseInt(T.substring(2, 4)));
 			endTime.set(y, m - 1, d, Integer.parseInt(T.substring(4, 6)), Integer.parseInt(T.substring(6, 8)));
 		}
-		//testing
-		System.out.println("from "+Long.parseLong(
-				cal.get(Calendar.YEAR) + "" + (((cal.get(Calendar.MONTH) + 1) < 10) ? "0" + (cal.get(Calendar.MONTH) + 1) : (cal.get(Calendar.MONTH) + 1)) + ""
-						+ (((cal.get(Calendar.DAY_OF_MONTH)) < 10) ? "0" + cal.get(Calendar.DAY_OF_MONTH) : (cal.get(Calendar.DAY_OF_MONTH))) + ""+T.substring(0, 4)+"0000"));
-		System.out.println("to   "+cal.get(Calendar.YEAR) + "" + (((cal.get(Calendar.MONTH) + 1) < 10) ? "0" + (cal.get(Calendar.MONTH) + 1) : (cal.get(Calendar.MONTH) + 1)) + ""
-				+ (((cal.get(Calendar.DAY_OF_MONTH) + 1) < 10) ? "0" + (cal.get(Calendar.DAY_OF_MONTH)) : (cal.get(Calendar.DAY_OF_MONTH)))+T.substring(0, 8)
-				+ "");
-		System.out.println(T);
-		// use treemap's submap to find events that have time conflicts in same day
-		SortedMap<Long, Event> subMapStore = events.subMap(Long.parseLong(
-				cal.get(Calendar.YEAR) + "" + (((cal.get(Calendar.MONTH) + 1) < 10) ? "0" + (cal.get(Calendar.MONTH) + 1) : (cal.get(Calendar.MONTH) + 1)) + ""
-						+ (((cal.get(Calendar.DAY_OF_MONTH)) < 10) ? "0" + cal.get(Calendar.DAY_OF_MONTH) : (cal.get(Calendar.DAY_OF_MONTH))) + ""+T.substring(0, 4)+"0000"),
-				Long.parseLong(cal.get(Calendar.YEAR) + "" + (((cal.get(Calendar.MONTH) + 1) < 10) ? "0" + (cal.get(Calendar.MONTH) + 1) : (cal.get(Calendar.MONTH) + 1)) + ""
-						+ (((cal.get(Calendar.DAY_OF_MONTH) ) < 10) ? "0" + (cal.get(Calendar.DAY_OF_MONTH) ) : (cal.get(Calendar.DAY_OF_MONTH)))+T.substring(4, 8)+"0000"
-						+ ""));
+	
+	
+		// use treemap's submap to find events that are in same day
+		SortedMap<Long, Event> subMapStore = events.subMap(Long.parseLong(cal.get(Calendar.YEAR) + ""
+				+ (((cal.get(Calendar.MONTH) + 1) < 10) ? "0" + (cal.get(Calendar.MONTH) + 1) : (cal.get(Calendar.MONTH) + 1)) + ""
+				+ (((cal.get(Calendar.DAY_OF_MONTH)) < 10) ? "0" + cal.get(Calendar.DAY_OF_MONTH) : (cal.get(Calendar.DAY_OF_MONTH))) + ""+ "00000000"), 
+				Long.parseLong(cal.get(Calendar.YEAR) + ""
+				+ (((cal.get(Calendar.MONTH) + 1) < 10) ? "0" + (cal.get(Calendar.MONTH) + 1) : (cal.get(Calendar.MONTH) + 1)) + ""
+				+ (((cal.get(Calendar.DAY_OF_MONTH) + 1) < 10) ? "0" + (cal.get(Calendar.DAY_OF_MONTH) + 1) : (cal.get(Calendar.DAY_OF_MONTH) + 1)) + ""+ "00000000"));
+		
 		if (!(subMapStore.isEmpty()))
-		{
+		{	
+			
 			Long[] keys = new Long[subMapStore.size()];
 			subMapStore.keySet().toArray(keys);
+			//for debugging
+			System.out.println("");
 			for (int x = keys.length - 1; x >= 0; x--)
 			{	Long k = keys[x];
 				System.out.println(k);
 			}
-			System.out.println(date.substring(4, 8) + date.substring(0, 2) + date.substring(2, 4) + T.substring(0, 8));
-			return false;
+			//
+			for(Long l : keys){
+				String x = l.toString();
+				
+				if((Long.parseLong(T.substring(0,4))<(Long.parseLong(x.substring(8,12))))
+						&&((Long.parseLong(T.substring(4,8))>(Long.parseLong(x.substring(12,16)))))){
+					return false;
+				}
+				if((Long.parseLong(T.substring(4,8))>(Long.parseLong(x.substring(8,12))))
+						&&((Long.parseLong(T.substring(4,8))<(Long.parseLong(x.substring(12,16)))))){
+					return false;
+				}
+				if((Long.parseLong(T.substring(0,4))>(Long.parseLong(x.substring(8,12))))
+						&&((Long.parseLong(T.substring(0,4))<(Long.parseLong(x.substring(12,16)))))){
+					return false;
+				}
+			}
+			
+		
+			
 		}
 		Event eStore = new Event(title, m, d, y, startTime, endTime);
 		// adds to events while creating key
@@ -449,7 +481,11 @@ public class MyCalendar
 		events.put(Long.parseLong(date.substring(4, 8) + date.substring(0, 2) + date.substring(2, 4) + T.substring(0, 8)), eStore);
 		return true;
 	}
-
+	/**
+	 * creates an event based on user input. Obsolete.
+	 * @param in
+	 * @param userIn
+	 */
 	public void createEvent(Scanner in, String userIn)
 	{
 		String title = "";
