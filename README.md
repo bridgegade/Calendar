@@ -1,0 +1,2 @@
+# Calendar
+delete package calendar
