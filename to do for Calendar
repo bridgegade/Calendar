@@ -1,3 +1,4 @@
 Create a new class type that holds a field TIME and EVENTSARRAY
 create a 24 size array that holds a type of this class 
 add the array to a jlist
+Clean up model
